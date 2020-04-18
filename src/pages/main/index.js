@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
-import { Container, Form, SubmitButton, List } from './styles';
-
+import { Form, SubmitButton, List } from './styles';
+import Container from '../../components/Container';
 export default class Main extends Component {
   state = {
     newRepo: '',
@@ -11,10 +12,12 @@ export default class Main extends Component {
     loading: false,
   };
 
+  //pega o valor digitado
   hadleNewRepo = (e) => {
     this.setState({ newRepo: e.target.value });
   };
 
+  //envia o valor pesquisado
   handleSubmit = async (e) => {
     e.preventDefault();
     this.setState({ loading: true });
@@ -35,6 +38,21 @@ export default class Main extends Component {
 
     console.log(response.data);
   };
+
+  //carregar os repositórios
+  componentDidMount() {
+    const repositories = localStorage.getItem('repositories');
+
+    if (repositories) this.setState({ repositories: JSON.parse(repositories) });
+  }
+
+  //atualizar os repositórios
+  componentDidUpdate(_, prevState) {
+    const { repositories } = this.state;
+
+    if (prevState.repositories !== repositories)
+      localStorage.setItem('repositories', JSON.stringify(repositories));
+  }
 
   render() {
     const { newRepo, loading, repositories } = this.state;
@@ -66,7 +84,9 @@ export default class Main extends Component {
           {repositories.map((repositoty) => (
             <li key={repositoty.name}>
               <span>{repositoty.name}</span>
-              <a href="">Detalhes</a>
+              <Link to={`/repository/${encodeURIComponent(repositoty.name)}`}>
+                Detalhes
+              </Link>
             </li>
           ))}
         </List>
